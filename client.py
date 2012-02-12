@@ -14,7 +14,8 @@ JSONListener.register()
 #server = subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, bufsize=0)
 
 #(ip, port), authkey = json.loads(server.stdout.readline())
-(ip, port), authkey = (('127.0.0.1', 13337), 'a')
+from six import b
+(ip, port), authkey = (('127.0.0.1', 13337), b('a'))
 #authkey = authkey.encode('latin-1')
 
 from multiprocessing.managers import SyncManager as Manager

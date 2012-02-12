@@ -1,4 +1,5 @@
 from six.moves import builtins
+from six import string_types, iteritems
 import logging
 
 __logger__ = logging.getLogger(__file__)
@@ -8,7 +9,7 @@ from numbers import Number
 import json
 
 # we only transfer these objects over the connection
-immutable = (Number, basestring, tuple)
+immutable = (Number, string_types, tuple)
 
 class ProxyBase(object):
     def __init__(self):
@@ -130,7 +131,7 @@ class Reference(object):
 
     def wrapargs(self, args, kwargs):
         args = [self.wrap(arg) for arg in args]
-        kwargs = dict((key, self.wrap(val)) for (key, val) in kwargs.iteritems())
+        kwargs = dict((key, self.wrap(val)) for (key, val) in iteritems(kwargs))
         return args, kwargs
 
     def call(self, *args, **kwargs):
@@ -155,7 +156,7 @@ def logdecorator(fn):
     def inner(*args, **kwargs):
         try:
             retval = fn(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             __logger__.warning(e)
             raise
         __logger__.debug("%r(%r, %r) -> %r"%(fn, args, kwargs, retval))
