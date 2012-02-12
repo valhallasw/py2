@@ -1,0 +1,35 @@
+Python 3->2 compatibility layer
+-------------------------------
+
+This project tries to bridge the python2-3 gap by allowing you to access python2 modules from python3. The system starts a background python2 process (not yet implemented), and communicates over JSON-RPC.
+
+Required packages: none (standard library)
+
+Howto:
+    python2 server.py &
+    python3 -i client.py
+    >>> import sys
+    >>> sys.version
+    '3.1.2 (r312:79147, Sep 27 2010, 09:45:41) \n[GCC 4.4.3]'
+    >>> rsys = remote_import('sys')
+    >>> rsys.version
+    '2.6.5 (r265:79063, Apr 16 2010, 13:09:56) \n[GCC 4.4.3]'
+
+In the following, 'local' refers to the client (py3) side and 'remote' to the server (py2) side.
+
+Builtins can be accessed using remote_import('__builtin__').
+
+Only immutable objects are transferred over the connection; other objects on the server are sent as reference. They are a Proxy object on the local side, which means they can be used as normal objects: all functions (should) work correctly. This also means lists will /not/ be transferred (else .append() etc would not work correctly), but tuples will. You can instantiate a remote list using something like remote_import('__builtin__').list((1,2,3,4)).
+
+Local objects are not Proxied to the remote side, so remote_import('__builtin__').list([1,2,3,4]) will /not/ work. However, you can do something like
+
+    rlist = remote_import('__builtin__').list
+    x = rlist((1,2,3,4))
+    y = rlist((5,6,7,8))
+    x.extend(y)
+
+as the remote side already has the y object.
+
+
+
+Available under the MIT license.
