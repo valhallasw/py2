@@ -1,10 +1,4 @@
-#
-# A higher level module for using sockets (or Windows named pipes)
-#
-# multiprocessing/connection.py
-#
-# Copyright (c) 2006-2008, R Oudkerk --- see COPYING.txt
-#
+# Based on multiprocessing/connection.py (c) 2006-2008, R Oudkerk
 
 from multiprocessing.connection import Listener, Client, ConnectionWrapper
 
