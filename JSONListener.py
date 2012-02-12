@@ -13,13 +13,19 @@ try:
 except ImportError:
     import json
 
+def dumps(data):
+    return json.dumps(data).encode('latin-1')
+
+def loads(data):
+    return json.loads(data.decode('latin-1'))
+
 class JSONListener(Listener):
     def accept(self):
         obj = Listener.accept(self)
-        return ConnectionWrapper(obj, json.dumps, json.loads)
+        return ConnectionWrapper(obj, dumps, loads)
 
 def JSONClient(*args, **kwds):
-    return ConnectionWrapper(Client(*args, **kwds), json.dumps, json.loads)
+    return ConnectionWrapper(Client(*args, **kwds), dumps, loads)
 
 def register(key='json'):
     from multiprocessing.managers import listener_client
