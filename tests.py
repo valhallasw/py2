@@ -60,6 +60,22 @@ class FauxConnectionTests(unittest.TestCase):
         assert(C.str(list_ref) == str(list))
         assert(C.repr(list_ref) == repr(list))
 
+    def test_unicode_stays_unicode(self):
+        C = self.fxconn_object
+        isreference, ref = C.get_global('unicode')
+        assert(isreference)
+        isreference, unicode_object = C.call(ref, (False, "\u00eb"))
+        assert(not isreference)
+        assert(isinstance(unicode_object, unicode))
+
+    def test_str_stays_str(self):
+        C = self.fxconn_object
+        isreference, ref = C.get_global('str')
+        assert(isreference)
+        isreference, str_object = C.call(ref, (False, "\x89"))
+        assert(not isreference)
+        assert(isinstance(str_object, str))
+
 
 class ReferenceTest(unittest.TestCase):
     def setUp(self):
