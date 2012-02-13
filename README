@@ -3,7 +3,7 @@ Python 3->2 compatibility layer
 
 This project tries to bridge the python2-3 gap by allowing you to access python2 modules from python3. The system starts a background python2 process (not yet implemented), and communicates over JSON-RPC.
 
-Required packages: none (standard library)
+Required packages: six (for both server and client)
 
 Howto:
     python2 server.py &
