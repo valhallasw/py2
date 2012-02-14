@@ -171,8 +171,6 @@ class FauxConnection(object):
         try:
             if not isinstance(value, immutable):
                 raise TypeError
-            import json
-            json.dumps(value)
             return False, value
         except TypeError:
             self.references.append(value)
