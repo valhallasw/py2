@@ -9,7 +9,7 @@ from numbers import Number
 import json
 
 # we only transfer these objects over the connection
-immutable = (Number, string_types, tuple)
+transferTypes = (Number, string_types)
 
 class ProxyBase(object):
     def __init__(self):
@@ -31,6 +31,8 @@ class ProxyBase(object):
         def unwrap_item(item):
             if isinstance(item, ProxyBase):
                 return object.__getattribute__(item, '_reference')
+            elif isinstance(item, tuple):
+                return tuple(unwrap_item(obj) for obj in item)
             else:
                 return item
 
@@ -41,10 +43,16 @@ class ProxyBase(object):
 
         args, kwargs = unwrap(args, kwargs)
         isreference, retval = reference.call(*args, **kwargs)
-        if isreference:
-            return ProxyFactory(retval)
-        else:
-            return retval
+
+        def wrap_item(isreference, item):
+            if isreference:
+                return ProxyFactory(retval)
+            elif isinstance(item, tuple):
+                return tuple(wrap_item(*obj) for obj in item)
+            else:
+                return item
+        
+        return wrap_item(isreference, retval)
 
     def __dir__(self):
         reference = object.__getattribute__(self, '_reference')
@@ -124,10 +132,21 @@ class Reference(object):
                 return True, val.remoteId
             else:
                 raise TypeError("Cannot transfer objects from different connections")
-        elif isinstance(val, immutable):
+        elif isinstance(val, transferTypes):
             return False, val
+        elif isinstance(val, tuple):
+            return False, tuple(self.wrap(item) for item in val)
         else:
-            raise TypeError("Cannot transfer objects that are not immutable %r" % (immutable,))
+            raise TypeError("Cannot transfer objects that are not immutable (%s not in %r)" % (type(val), transferTypes,))
+
+    def unwrap(self, isreference, val):
+        if isreference:
+            return isreference, Reference(self.connection, val)
+        elif isinstance(val, tuple):
+            return isreference, tuple(self.unwrap(item) for item in val)
+        else:
+            return isreference, val
+
 
     def wrapargs(self, args, kwargs):
         args = [self.wrap(arg) for arg in args]
@@ -137,11 +156,11 @@ class Reference(object):
     def call(self, *args, **kwargs):
         args, kwargs = self.wrapargs(args, kwargs)
         isreference, retval = self.connection.call(self.remoteId, *args, **kwargs)
-        return isreference, Reference(self.connection, retval) if isreference else retval
+        return self.unwrap(isreference, retval)
 
     def get_attribute(self, attribute):
         isreference, retval = self.connection.get_attribute(self.remoteId, attribute)
-        return isreference, Reference(self.connection, retval) if isreference else retval
+        return self.unwrap(isreference, retval)
 
     def dir(self):
         return self.connection.dir(self.remoteId)
@@ -168,19 +187,22 @@ class FauxConnection(object):
         self.references = []
 
     def format(self, value):
-        try:
-            if not isinstance(value, immutable):
-                raise TypeError
+        if isinstance(value, transferTypes):
             return False, value
-        except TypeError:
+        elif isinstance(value, tuple):
+            return False, tuple(format(item) for item in value)
+        else:
             self.references.append(value)
-            return True, len(self.references) - 1
+            return True, len(self.references) -1
 
     def unformat(self, isreference, value):
         if isreference:
             return self.references[value]
         else:
-            return value
+            if isinstance(value, tuple):
+                return (self.unformat(*item) for item in value)
+            else:
+                return value
 
     def unwrap(self, args, kwargs):
         args = [self.unformat(isref, val) for (isref, val) in args]

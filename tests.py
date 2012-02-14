@@ -44,7 +44,7 @@ class FauxConnectionTests(unittest.TestCase):
         C = self.fxconn_object
         isreference, list_ref = C.get_global('list')
         assert(isreference)
-        isreference, remote_list_ref = C.call(list_ref, (False, (1,2,3)))
+        isreference, remote_list_ref = C.call(list_ref, (False, ((False, 1), (False, 2), (False, 3))))
         assert(isreference)
         isreference, len_ref = C.get_global('len')
         assert(isreference)
