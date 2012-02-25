@@ -1,5 +1,5 @@
 from six.moves import builtins
-from six import string_types, iteritems
+from six import text_type, binary_type, iteritems
 import logging
 
 __logger__ = logging.getLogger(__file__)
@@ -9,7 +9,7 @@ from numbers import Number
 import json
 
 # we only transfer these objects over the connection
-transferTypes = (Number, string_types)
+transferTypes = (Number, text_type, binary_type)
 
 class ProxyBase(object):
     def __init__(self):
@@ -122,7 +122,7 @@ class Reference(object):
                 assert(not isreference)
                 yield r
 
-            self._special_methods = [method for method in walker() if method.startswith('__') and method.endswith('__')]
+            self._special_methods = [method for method in walker() if method.startswith(b'__') and method.endswith(b'__')]
         except RemoteException:
             self._special_methods = []
 

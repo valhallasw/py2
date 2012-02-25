@@ -12,10 +12,14 @@
 """
 
 import pickle
+try:
+    from pickle import _Pickler as Pickler, _Unpickler as Unpickler #py3
+except ImportError:
+    from pickle import Pickler, Unpickler
 import pickletools
 import struct
 
-class BytestrUnpickler(pickle._Unpickler):
+class BytestrUnpickler(Unpickler):
     """
     An adaptation of pickle._Unpickler that loads python 2 "str" as python 3
     "bytes".
@@ -36,7 +40,7 @@ class BytestrUnpickler(pickle._Unpickler):
             obj.stack[-1] = obj.stack[-1].encode('latin-1')
         return load_bytetype
 
-class BytestrPickler(pickle._Pickler):
+class BytestrPickler(Pickler):
     """ An adaptation of pickle._Pickler that writes 'bytes' as py2 'str's """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,3 +62,8 @@ class BytestrPickler(pickle._Pickler):
         else:
             self.write(pickle.STRING + repr(obj).lstrip('b').encode('ascii') + b'\n')
         self.memoize(obj)
+
+try:
+    from pickle import _Pickler as Pickler, _Unpickler as Unpickler #py3
+except ImportError:
+    from pickle import Pickler as BytestrPickler, Unpickler as BytestrUnpickler #py2

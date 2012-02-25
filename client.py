@@ -8,8 +8,8 @@ import sys
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-import JSONListener
-JSONListener.register()
+import bPickleListener
+bPickleListener.register()
 
 #server = subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, bufsize=0)
 
@@ -25,7 +25,7 @@ class FCManager(Manager):
 
 FCManager.register('get_manager')
 
-m = FCManager(address=(ip, port), authkey=authkey, serializer='json')
+m = FCManager(address=(ip, port), authkey=authkey, serializer='bPickle')
 m.connect()
 
 fcm = m.get_manager()

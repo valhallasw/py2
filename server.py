@@ -1,7 +1,7 @@
 from multiprocessing.managers import SyncManager as Manager
 
-import JSONListener
-JSONListener.register()
+import bPickleListener
+bPickleListener.register()
 
 import sys
 import reference
@@ -28,7 +28,7 @@ class FCManager(Manager):
 
 FCManager.register('get_manager', lambda: fc)
 
-m = FCManager(address=('127.0.0.1', 13337), serializer='json', authkey='a')
+m = FCManager(address=('127.0.0.1', 13337), serializer='bPickle', authkey='a')
 s = m.get_server()
 
 print_(json.dumps([s.address, s.authkey.decode('latin-1')]))
