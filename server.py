@@ -9,7 +9,11 @@ import json
 from six import print_
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+if "-silent" not in sys.argv:
+    print sys.argv
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.ERROR)
 
 fc = reference.FauxConnection()
 
