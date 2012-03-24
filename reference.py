@@ -102,7 +102,10 @@ class Reference(object):
         self._special_methods = None
 
     def __del__(self):
-        self.connection.destroy(self.remoteId)
+        try:
+            self.connection.destroy(self.remoteId)
+        except IOError:
+            pass
 
     @property
     def special_methods(self):
