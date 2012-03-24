@@ -50,4 +50,4 @@ as the remote side already has the y object.
 License
 -------
 
-Available under the MIT license.
+Available under the MIT license. See LICENSE for details.
